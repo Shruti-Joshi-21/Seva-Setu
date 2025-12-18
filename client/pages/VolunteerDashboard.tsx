@@ -1,6 +1,8 @@
 // client/src/components/Dashboard.tsx
 import React from "react";
 import { FaUserCheck, FaTasks, FaFileAlt, FaClock, FaCamera, FaPhone, FaCalendarAlt } from "react-icons/fa";
+import VolunteerChatbot from "../components/VolunteerChatbot";
+
 
 // Define types for dashboard cards
 interface CardProps {
@@ -24,11 +26,13 @@ const Card: React.FC<CardProps> = ({ title, description, statusText, statusColor
       </div>
     </div>
     <button
-      onClick={onClick}
-      className="bg-seva-green-dark text-white rounded-md py-2 mt-3 hover:bg-seva-green-light transition"
-    >
-      {buttonText}
-    </button>
+  onClick={onClick}
+  className="bg-seva-green text-white rounded-md py-2 mt-3 hover:bg-seva-green-light transition"
+>
+  {buttonText}
+</button>
+
+
   </div>
 );
 
@@ -36,6 +40,7 @@ const Dashboard: React.FC = () => {
   const handleClick = (name: string) => alert(`${name} clicked!`);
 
   return (
+    <>
     <div className="flex min-h-screen bg-seva-green-bg">
       {/* Sidebar */}
       <aside className="w-64 bg-white shadow-md p-6 flex flex-col justify-between">
@@ -49,11 +54,6 @@ const Dashboard: React.FC = () => {
             <button className="text-left hover:text-seva-green-dark">Field Reports</button>
             <button className="text-left hover:text-seva-green-dark">Team Management</button>
           </nav>
-        </div>
-        <div className="mt-6">
-          <button className="bg-seva-yellow text-white rounded-md px-4 py-2 w-full hover:opacity-90 transition">
-            Chat with Assistant
-          </button>
         </div>
       </aside>
 
@@ -178,6 +178,9 @@ const Dashboard: React.FC = () => {
         </div>
       </main>
     </div>
+    {/* ===== CHATBOT (NEW, SAFE) ===== */}
+      <VolunteerChatbot />
+  </>
   );
 };
 
