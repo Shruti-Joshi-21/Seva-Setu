@@ -3,9 +3,11 @@ import StatsCard from "@/components/StatsCard";
 import LeaveRequestCard from "@/components/ui/LeaveRequestCard";
 import TaskCard from "@/components/TaskCard";
 import AttendanceChart from "@/components/AttendanceChart";
-
+import VolunteerAddTaskDialog from "@/components/VolunteerAddTaskDialog";
+import { useState } from "react";
 
 const TeamLeadDashboard: React.FC = () => {
+  const [isOpen, setIsOpen] = useState(false);
   const attendanceData = [
     { name: "Present", value: 85, color: "#246427" },
     { name: "Absent", value: 10, color: "#F8AC3B" },
@@ -18,7 +20,13 @@ const TeamLeadDashboard: React.FC = () => {
 
       <main className="flex-1 p-6">
         <header className="flex justify-between items-center mb-6">
-          <button className="bg-[#246427] text-white px-4 py-2 rounded-lg hover:bg-[#81C784] transition">+ New Task</button>
+             <button
+                onClick={() => setIsOpen(true)}
+                className="bg-[#246427] text-white px-4 py-2 rounded-lg hover:bg-[#81C784] transition"
+              >
+                + New Task
+              </button>
+              <VolunteerAddTaskDialog isOpen={isOpen} onClose={() => setIsOpen(false)} />
           <div className="flex items-center gap-4">
             <p className="text-[#212121] font-semibold">Sarah Jain</p>
             <img src="https://i.pravatar.cc/40" className="w-10 h-10 rounded-full" alt="User" />
