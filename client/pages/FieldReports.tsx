@@ -1,8 +1,102 @@
-import React, { useState } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { FaBell, FaCheckCircle, FaTimesCircle, FaExclamationCircle, FaCamera, FaUpload, FaMapMarkerAlt, FaTrash, FaBullhorn, FaSchool, FaSeedling, FaHandsHelping } from "react-icons/fa";
+
+type PhotoType = "before" | "after";
 
 const FieldReportsDashboard: React.FC = () => {
   const [activity, setActivity] = useState<string | null>(null);
+
+  /* ---------------- PHOTO STATES ---------------- */
+  const [activePhotoType, setActivePhotoType] = useState<PhotoType | null>(null);
+  const [showCamera, setShowCamera] = useState(false);
+
+  const videoRef = useRef<HTMLVideoElement | null>(null);
+  const canvasRef = useRef<HTMLCanvasElement | null>(null);
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
+
+  const [beforeImage, setBeforeImage] = useState<string | null>(null);
+  const [afterImage, setAfterImage] = useState<string | null>(null);
+
+  /* ---------------- CAMERA LOGIC ---------------- */
+  useEffect(() => {
+    if (!showCamera) return;
+
+    navigator.mediaDevices
+      .getUserMedia({ video: true })
+      .then((stream) => {
+        if (videoRef.current) {
+          videoRef.current.srcObject = stream;
+        }
+      })
+      .catch(() => {
+        alert("Camera access denied");
+        setShowCamera(false);
+      });
+
+    return () => stopCamera();
+  }, [showCamera]);
+
+  const stopCamera = () => {
+    if (videoRef.current?.srcObject) {
+      const tracks = (videoRef.current.srcObject as MediaStream).getTracks();
+      tracks.forEach((t) => t.stop());
+      videoRef.current.srcObject = null;
+    }
+  };
+
+  const capturePhoto = () => {
+    if (!canvasRef.current || !videoRef.current || !activePhotoType) return;
+
+    const canvas = canvasRef.current;
+    const video = videoRef.current;
+
+    canvas.width = video.videoWidth;
+    canvas.height = video.videoHeight;
+
+    const ctx = canvas.getContext("2d");
+    ctx?.drawImage(video, 0, 0);
+
+    const imageData = canvas.toDataURL("image/png");
+
+    if (activePhotoType === "before") setBeforeImage(imageData);
+    if (activePhotoType === "after") setAfterImage(imageData);
+
+    stopCamera();
+    setShowCamera(false);
+    setActivePhotoType(null);
+  };
+
+  const cancelCamera = () => {
+    stopCamera();
+    setShowCamera(false);
+    setActivePhotoType(null);
+  };
+
+  /* ---------------- FILE UPLOAD ---------------- */
+  const handleUploadClick = (type: PhotoType) => {
+    setActivePhotoType(type);
+    fileInputRef.current?.click();
+  };
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file || !activePhotoType) return;
+
+    if (!file.type.startsWith("image/")) {
+      alert("Only image files allowed");
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = () => {
+      if (activePhotoType === "before") setBeforeImage(reader.result as string);
+      if (activePhotoType === "after") setAfterImage(reader.result as string);
+    };
+    reader.readAsDataURL(file);
+
+    e.target.value = "";
+    setActivePhotoType(null);
+  };
 
   return (
     <div className="min-h-screen bg-[#F1F8E9] text-[#212121]">
@@ -71,14 +165,30 @@ const FieldReportsDashboard: React.FC = () => {
           <div className="lg:col-span-2 bg-white rounded-xl p-6 shadow">
             <h3 className="font-semibold mb-4 text-[#246427]">Photo Documentation</h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {['Before Task Image', 'After Task Image'].map((title, i) => (
-                <div key={i} className="border-2 border-dashed rounded-lg p-4 text-center">
-                  <FaCamera className="mx-auto text-3xl text-[#616161] mb-2" />
+              {[
+                { title: "Before Task Image", type: "before" as PhotoType, image: beforeImage },
+                { title: "After Task Image", type: "after" as PhotoType, image: afterImage }
+              ].map(({ title, type, image }) => (
+                <div key={type} className="border-2 border-dashed rounded-lg p-4 text-center">
+                  {image ? (
+                    <img src={image} alt={title} className="mx-auto mb-3 rounded-md max-h-48" />
+                  ) : (
+                    <FaCamera className="mx-auto text-3xl text-[#616161] mb-2" />
+                  )}
                   <p className="font-medium">{title}</p>
-                  <button className="mt-3 w-full bg-[#246427] text-white py-2 rounded-md flex justify-center items-center gap-2">
+                  <button 
+                    className="mt-3 w-full bg-[#246427] text-white py-2 rounded-md flex justify-center items-center gap-2"
+                    onClick={() => {
+                      setActivePhotoType(type);
+                      setShowCamera(true);
+                    }}
+                  >
                     <FaCamera /> Capture Photo
                   </button>
-                  <button className="mt-2 w-full border py-2 rounded-md flex justify-center items-center gap-2 text-sm">
+                  <button 
+                    className="mt-2 w-full border py-2 rounded-md flex justify-center items-center gap-2 text-sm"
+                    onClick={() => handleUploadClick(type)}
+                  >
                     <FaUpload /> Upload from Device
                   </button>
                 </div>
@@ -139,6 +249,40 @@ const FieldReportsDashboard: React.FC = () => {
           </div>
         </div>
       </main>
+
+      {/* CAMERA MODAL */}
+      {showCamera && (
+        <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-4 w-[90%] max-w-md">
+            <video ref={videoRef} autoPlay className="w-full rounded-md" />
+            <canvas ref={canvasRef} className="hidden" />
+
+            <div className="flex gap-3 mt-4">
+              <button
+                onClick={capturePhoto}
+                className="flex-1 bg-[#246427] text-white py-2 rounded-md"
+              >
+                Capture
+              </button>
+              <button
+                onClick={cancelCamera}
+                className="flex-1 border py-2 rounded-md"
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* HIDDEN FILE INPUT */}
+      <input
+        ref={fileInputRef}
+        type="file"
+        accept="image/png, image/jpeg, image/jpg"
+        className="hidden"
+        onChange={handleFileChange}
+      />
     </div>
   );
 };
