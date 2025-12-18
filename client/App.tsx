@@ -15,6 +15,8 @@ import TeamLeadDashboard from "./pages/TeamLeadDashboard";
 import AdminDashboard from "./pages/AdminDashboard";
 import VolunteerDashboard from "./pages/VolunteerDashboard"; 
 import LoginDialog from "./components/LoginDialog";
+import FieldReports from "./pages/FieldReports";
+
 
 
 const queryClient = new QueryClient();
@@ -33,6 +35,7 @@ const App = () => (
           <Route path="/teamlead-dashboard" element={<TeamLeadDashboard />} />
           <Route path="/admin-dashboard" element={<AdminDashboard />} />
           <Route path="/volunteer-dashboard" element={<VolunteerDashboard />} /> 
+          <Route path="/field-reports" element={<FieldReports />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
          <Route path="*" element={<NotFound />} />
         </Routes>

@@ -5,6 +5,7 @@ import MarkAttendanceDialog from "../components/MarkAttendanceDialog";
 import { FaUserCheck, FaTasks, FaFileAlt, FaClock, FaCamera, FaPhone, FaCalendarAlt } from "react-icons/fa";
 import VolunteerChatbot from "../components/VolunteerChatbot";
 import LeaveRequestDialog from "../components/LeaveRequestDialog";
+import { useNavigate } from "react-router-dom";
 
 
 // Define types for dashboard cards
@@ -19,7 +20,7 @@ interface CardProps {
 }
 
 const Card: React.FC<CardProps> = ({ title, description, statusText, statusColor, buttonText, onClick, icon }) => (
-  <div className="bg-seva-green-bg rounded-lg p-6 shadow-sm flex flex-col justify-between">
+  <div className="bg-white rounded-lg p-6 shadow-sm flex flex-col justify-between">
     <div className="flex items-center gap-3 mb-4 text-seva-green-dark">
       <div className="text-2xl">{icon}</div>
       <div>
@@ -42,6 +43,7 @@ const Card: React.FC<CardProps> = ({ title, description, statusText, statusColor
 
 
 const Dashboard: React.FC = () => {
+  const navigate = useNavigate();
   const [attendanceOpen, setAttendanceOpen] = useState(false);
   const [leaveOpen, setLeaveOpen] = useState(false);
 
@@ -143,7 +145,7 @@ const Dashboard: React.FC = () => {
             statusText="Report Pending"
             statusColor="text-red-500"
             buttonText="Submit Report"
-            onClick={() => handleClick("Submit Daily Report")}
+            onClick={() => navigate("/field-reports")}
             icon={<FaFileAlt />}
           />
           <Card
