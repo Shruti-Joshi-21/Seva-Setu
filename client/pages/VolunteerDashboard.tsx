@@ -1,7 +1,10 @@
 // client/src/components/Dashboard.tsx
 import React from "react";
+import { useState } from "react";
+import MarkAttendanceDialog from "../components/MarkAttendanceDialog";
 import { FaUserCheck, FaTasks, FaFileAlt, FaClock, FaCamera, FaPhone, FaCalendarAlt } from "react-icons/fa";
 import VolunteerChatbot from "../components/VolunteerChatbot";
+import LeaveRequestDialog from "../components/LeaveRequestDialog";
 
 
 // Define types for dashboard cards
@@ -36,16 +39,21 @@ const Card: React.FC<CardProps> = ({ title, description, statusText, statusColor
   </div>
 );
 
+
+
 const Dashboard: React.FC = () => {
+  const [attendanceOpen, setAttendanceOpen] = useState(false);
+  const [leaveOpen, setLeaveOpen] = useState(false);
+
   const handleClick = (name: string) => alert(`${name} clicked!`);
 
   return (
     <>
     <div className="flex min-h-screen bg-seva-green-bg">
       {/* Sidebar */}
-      <aside className="w-64 bg-white shadow-md p-6 flex flex-col justify-between">
-        <div>
-          <h1 className="font-bold text-xl text-seva-green-dark mb-6">EcoField</h1>
+        <aside className="w-64 bg-white shadow-md p-6 flex flex-col justify-between">
+      <div>
+          <h1 className="font-bold text-xl text-seva-green-dark mb-6">SevaSetu</h1>
           <nav className="flex flex-col gap-4 text-seva-gray-dark">
             <button className="text-left hover:text-seva-green-dark">Dashboard</button>
             <button className="text-left hover:text-seva-green-dark">Attendance</button>
@@ -54,7 +62,7 @@ const Dashboard: React.FC = () => {
             <button className="text-left hover:text-seva-green-dark">Field Reports</button>
             <button className="text-left hover:text-seva-green-dark">Team Management</button>
           </nav>
-        </div>
+        </div> 
       </aside>
 
       {/* Main Content */}
@@ -109,7 +117,7 @@ const Dashboard: React.FC = () => {
             statusText="Already Checked In"
             statusColor="text-seva-green-dark"
             buttonText="View Details"
-            onClick={() => handleClick("Mark Attendance")}
+            onClick={() => setAttendanceOpen(true)}
             icon={<FaUserCheck />}
           />
           <Card
@@ -140,11 +148,11 @@ const Dashboard: React.FC = () => {
           />
           <Card
             title="Request Leave"
-            description="Submit leave request with date range"
-            statusText="No Pending Requests"
+            description="Submit leave request"
+            statusText="Mention reason"
             statusColor="text-seva-gray-dark"
             buttonText="Request Leave"
-            onClick={() => handleClick("Request Leave")}
+            onClick={() => setLeaveOpen(true)}
             icon={<FaCalendarAlt />}
           />
           <Card
@@ -178,10 +186,23 @@ const Dashboard: React.FC = () => {
         </div>
       </main>
     </div>
+    
+
+    <LeaveRequestDialog
+      open={leaveOpen}
+      onClose={() => setLeaveOpen(false)}
+    />
+
+     <MarkAttendanceDialog
+      open={attendanceOpen}
+      onClose={() => setAttendanceOpen(false)}
+    />
+    
     {/* ===== CHATBOT (NEW, SAFE) ===== */}
       <VolunteerChatbot />
   </>
   );
-};
+}; 
+
 
 export default Dashboard;

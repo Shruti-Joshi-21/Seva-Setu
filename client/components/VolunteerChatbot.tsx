@@ -11,7 +11,7 @@ const VolunteerChatbot: React.FC = () => {
   const [messages, setMessages] = useState<Message[]>([
     {
       sender: "bot",
-      text: "Hi 👋 I’m your EcoField assistant. How can I help you today?",
+      text: "Hi 👋 I’m your SevaSetu assistant. How can I help you today?",
     },
   ]);
 
@@ -57,7 +57,7 @@ const VolunteerChatbot: React.FC = () => {
             className="flex items-center justify-between px-4 py-3 text-white"
             style={{ backgroundColor: "#246427" }}
           >
-            <span className="font-semibold">EcoField Assistant</span>
+            <span className="font-semibold">SevaSetu Assistant</span>
             <button onClick={() => setOpen(false)}>✕</button>
           </div>
 
