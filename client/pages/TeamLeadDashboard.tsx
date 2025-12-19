@@ -3,17 +3,15 @@ import StatsCard from "@/components/StatsCard";
 import LeaveRequestCard from "@/components/ui/LeaveRequestCard";
 import TaskCard from "@/components/TaskCard";
 import AttendanceChart from "@/components/AttendanceChart";
-<<<<<<< HEAD
-
-
-const TeamLeadDashboard: React.FC = () => {
-=======
 import VolunteerAddTaskDialog from "@/components/VolunteerAddTaskDialog";
 import { useState } from "react";
 
 const TeamLeadDashboard: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
->>>>>>> origin/main
+
+  // ✅ ONLY LOGIC ADDED
+  const userName = localStorage.getItem("userName") || "User";
+
   const attendanceData = [
     { name: "Present", value: 85, color: "#246427" },
     { name: "Absent", value: 10, color: "#F8AC3B" },
@@ -26,20 +24,26 @@ const TeamLeadDashboard: React.FC = () => {
 
       <main className="flex-1 p-6">
         <header className="flex justify-between items-center mb-6">
-<<<<<<< HEAD
-          <button className="bg-[#246427] text-white px-4 py-2 rounded-lg hover:bg-[#81C784] transition">+ New Task</button>
-=======
-             <button
-                onClick={() => setIsOpen(true)}
-                className="bg-[#246427] text-white px-4 py-2 rounded-lg hover:bg-[#81C784] transition"
-              >
-                + New Task
-              </button>
-              <VolunteerAddTaskDialog isOpen={isOpen} onClose={() => setIsOpen(false)} />
->>>>>>> origin/main
+          <button
+            onClick={() => setIsOpen(true)}
+            className="bg-[#246427] text-white px-4 py-2 rounded-lg hover:bg-[#81C784] transition"
+          >
+            + New Task
+          </button>
+
+          <VolunteerAddTaskDialog
+            isOpen={isOpen}
+            onClose={() => setIsOpen(false)}
+          />
+
           <div className="flex items-center gap-4">
-            <p className="text-[#212121] font-semibold">Sarah Jain</p>
-            <img src="https://i.pravatar.cc/40" className="w-10 h-10 rounded-full" alt="User" />
+            {/* ✅ USER NAME FROM LOCALSTORAGE */}
+            <p className="text-[#212121] font-semibold">{userName}</p>
+            <img
+              src="https://i.pravatar.cc/40"
+              className="w-10 h-10 rounded-full"
+              alt="User"
+            />
           </div>
         </header>
 
@@ -54,7 +58,9 @@ const TeamLeadDashboard: React.FC = () => {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-6">
           {/* Leave Requests */}
           <div className="lg:col-span-1">
-            <h2 className="text-[#212121] font-semibold mb-2">Leave Requests</h2>
+            <h2 className="text-[#212121] font-semibold mb-2">
+              Leave Requests
+            </h2>
             <LeaveRequestCard
               name="Mike Chen"
               avatar="https://i.pravatar.cc/40?u=mike"
@@ -71,13 +77,17 @@ const TeamLeadDashboard: React.FC = () => {
 
           {/* Team Attendance */}
           <div className="lg:col-span-1 bg-white p-4 rounded-lg shadow">
-            <h2 className="text-[#212121] font-semibold mb-2">Team Attendance</h2>
+            <h2 className="text-[#212121] font-semibold mb-2">
+              Team Attendance
+            </h2>
             <AttendanceChart data={attendanceData} />
           </div>
 
           {/* Active Field Tasks */}
           <div className="lg:col-span-1">
-            <h2 className="text-[#212121] font-semibold mb-2">Active Field Tasks</h2>
+            <h2 className="text-[#212121] font-semibold mb-2">
+              Active Field Tasks
+            </h2>
             <TaskCard
               title="Waste Collection - Sector 12"
               assignedTo="Rajesh Kumar's Team"
@@ -99,28 +109,50 @@ const TeamLeadDashboard: React.FC = () => {
 
         {/* Pending Tasks */}
         <div>
-          <h2 className="text-[#212121] font-semibold mb-2">Pending Tasks</h2>
+          <h2 className="text-[#212121] font-semibold mb-2">
+            Pending Tasks
+          </h2>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <div className="bg-white p-4 rounded-lg shadow flex justify-between items-center">
               <div>
-                <p className="text-[#212121] font-semibold">River cleanup survey</p>
-                <p className="text-[#616161] text-sm">Due: Today, 5:00 PM</p>
+                <p className="text-[#212121] font-semibold">
+                  River cleanup survey
+                </p>
+                <p className="text-[#616161] text-sm">
+                  Due: Today, 5:00 PM
+                </p>
               </div>
-              <span className="bg-red-200 text-red-700 text-xs px-2 py-1 rounded">High</span>
+              <span className="bg-red-200 text-red-700 text-xs px-2 py-1 rounded">
+                High
+              </span>
             </div>
+
             <div className="bg-white p-4 rounded-lg shadow flex justify-between items-center">
               <div>
-                <p className="text-[#212121] font-semibold">Volunteer training session</p>
-                <p className="text-[#616161] text-sm">Due: Tomorrow, 10:00 AM</p>
+                <p className="text-[#212121] font-semibold">
+                  Volunteer training session
+                </p>
+                <p className="text-[#616161] text-sm">
+                  Due: Tomorrow, 10:00 AM
+                </p>
               </div>
-              <span className="bg-yellow-200 text-yellow-700 text-xs px-2 py-1 rounded">Medium</span>
+              <span className="bg-yellow-200 text-yellow-700 text-xs px-2 py-1 rounded">
+                Medium
+              </span>
             </div>
+
             <div className="bg-white p-4 rounded-lg shadow flex justify-between items-center">
               <div>
-                <p className="text-[#212121] font-semibold">Equipment inventory check</p>
-                <p className="text-[#616161] text-sm">Due: Dec 18, 2024</p>
+                <p className="text-[#212121] font-semibold">
+                  Equipment inventory check
+                </p>
+                <p className="text-[#616161] text-sm">
+                  Due: Dec 18, 2024
+                </p>
               </div>
-              <span className="bg-green-200 text-green-700 text-xs px-2 py-1 rounded">Low</span>
+              <span className="bg-green-200 text-green-700 text-xs px-2 py-1 rounded">
+                Low
+              </span>
             </div>
           </div>
         </div>

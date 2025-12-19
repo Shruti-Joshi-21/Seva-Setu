@@ -1,16 +1,18 @@
 // client/src/components/Dashboard.tsx
-import React from "react";
-<<<<<<< HEAD
-import { FaUserCheck, FaTasks, FaFileAlt, FaClock, FaCamera, FaPhone, FaCalendarAlt } from "react-icons/fa";
-=======
-import { useState } from "react";
+import React, { useState } from "react";
+import {
+  FaUserCheck,
+  FaTasks,
+  FaFileAlt,
+  FaClock,
+  FaCamera,
+  FaPhone,
+  FaCalendarAlt,
+} from "react-icons/fa";
 import MarkAttendanceDialog from "../components/MarkAttendanceDialog";
-import { FaUserCheck, FaTasks, FaFileAlt, FaClock, FaCamera, FaPhone, FaCalendarAlt } from "react-icons/fa";
 import VolunteerChatbot from "../components/VolunteerChatbot";
 import LeaveRequestDialog from "../components/LeaveRequestDialog";
 import { useNavigate } from "react-router-dom";
-
->>>>>>> origin/main
 
 // Define types for dashboard cards
 interface CardProps {
@@ -23,24 +25,32 @@ interface CardProps {
   icon: React.ReactNode;
 }
 
-const Card: React.FC<CardProps> = ({ title, description, statusText, statusColor, buttonText, onClick, icon }) => (
-<<<<<<< HEAD
-  <div className="bg-seva-green-bg rounded-lg p-6 shadow-sm flex flex-col justify-between">
-=======
+const Card: React.FC<CardProps> = ({
+  title,
+  description,
+  statusText,
+  statusColor,
+  buttonText,
+  onClick,
+  icon,
+}) => (
   <div className="bg-white rounded-lg p-6 shadow-sm flex flex-col justify-between">
->>>>>>> origin/main
     <div className="flex items-center gap-3 mb-4 text-seva-green-dark">
       <div className="text-2xl">{icon}</div>
       <div>
         <h3 className="font-semibold text-gray-900">{title}</h3>
         <p className="text-sm text-seva-gray-dark">{description}</p>
-        {statusText && <p className={`text-sm mt-1 font-medium ${statusColor}`}>{statusText}</p>}
+        {statusText && (
+          <p className={`text-sm mt-1 font-medium ${statusColor}`}>
+            {statusText}
+          </p>
+        )}
       </div>
     </div>
+
     <button
-<<<<<<< HEAD
       onClick={onClick}
-      className="bg-seva-green-dark text-white rounded-md py-2 mt-3 hover:bg-seva-green-light transition"
+      className="bg-seva-green text-white rounded-md py-2 mt-3 hover:bg-seva-green-light transition"
     >
       {buttonText}
     </button>
@@ -48,223 +58,200 @@ const Card: React.FC<CardProps> = ({ title, description, statusText, statusColor
 );
 
 const Dashboard: React.FC = () => {
-  const handleClick = (name: string) => alert(`${name} clicked!`);
-
-  return (
-    <div className="flex min-h-screen bg-seva-green-bg">
-      {/* Sidebar */}
-      <aside className="w-64 bg-white shadow-md p-6 flex flex-col justify-between">
-        <div>
-          <h1 className="font-bold text-xl text-seva-green-dark mb-6">EcoField</h1>
-=======
-  onClick={onClick}
-  className="bg-seva-green text-white rounded-md py-2 mt-3 hover:bg-seva-green-light transition"
->
-  {buttonText}
-</button>
-
-
-  </div>
-);
-
-
-
-const Dashboard: React.FC = () => {
   const navigate = useNavigate();
   const [attendanceOpen, setAttendanceOpen] = useState(false);
   const [leaveOpen, setLeaveOpen] = useState(false);
+
+  // ✅ ONLY LOGIC ADDED
+  const userName = localStorage.getItem("userName") || "User";
 
   const handleClick = (name: string) => alert(`${name} clicked!`);
 
   return (
     <>
-    <div className="flex min-h-screen bg-seva-green-bg">
-      {/* Sidebar */}
+      <div className="flex min-h-screen bg-seva-green-bg">
+        {/* Sidebar */}
         <aside className="w-64 bg-white shadow-md p-6 flex flex-col justify-between">
-      <div>
-          <h1 className="font-bold text-xl text-seva-green-dark mb-6">SevaSetu</h1>
->>>>>>> origin/main
-          <nav className="flex flex-col gap-4 text-seva-gray-dark">
-            <button className="text-left hover:text-seva-green-dark">Dashboard</button>
-            <button className="text-left hover:text-seva-green-dark">Attendance</button>
-            <button className="text-left hover:text-seva-green-dark">Leave Management</button>
-            <button className="text-left hover:text-seva-green-dark">Task Management</button>
-            <button className="text-left hover:text-seva-green-dark">Field Reports</button>
-            <button className="text-left hover:text-seva-green-dark">Team Management</button>
-          </nav>
-<<<<<<< HEAD
-        </div>
-        <div className="mt-6">
-          <button className="bg-seva-yellow text-white rounded-md px-4 py-2 w-full hover:opacity-90 transition">
-            Chat with Assistant
-          </button>
-        </div>
-=======
-        </div> 
->>>>>>> origin/main
-      </aside>
+          <div>
+            <h1 className="font-bold text-xl text-seva-green-dark mb-6">
+              SevaSetu
+            </h1>
+            <nav className="flex flex-col gap-4 text-seva-gray-dark">
+              <button className="text-left hover:text-seva-green-dark">
+                Dashboard
+              </button>
+              <button className="text-left hover:text-seva-green-dark">
+                Attendance
+              </button>
+              <button className="text-left hover:text-seva-green-dark">
+                Leave Management
+              </button>
+              <button className="text-left hover:text-seva-green-dark">
+                Task Management
+              </button>
+              <button className="text-left hover:text-seva-green-dark">
+                Field Reports
+              </button>
+              <button className="text-left hover:text-seva-green-dark">
+                Team Management
+              </button>
+            </nav>
+          </div>
+        </aside>
 
-      {/* Main Content */}
-      <main className="flex-1 p-8">
-        <h2 className="text-2xl font-semibold mb-2 text-seva-gray-darker">Welcome back, Sarah!</h2>
-        <p className="text-seva-gray-dark mb-6">Here's your daily overview and quick actions for today's field operations.</p>
+        {/* Main Content */}
+        <main className="flex-1 p-8">
+          {/* ✅ USER NAME SHOWN */}
+          <h2 className="text-2xl font-semibold mb-2 text-seva-gray-darker">
+            Welcome back, {userName}!
+          </h2>
 
-        {/* Top Status Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-          <Card
-            title="Today's Status"
-            description=""
-            statusText="Checked In"
-            statusColor="text-seva-green-dark"
-            buttonText="View Details"
-            onClick={() => handleClick("Today's Status")}
-            icon={<FaUserCheck />}
-          />
-          <Card
-            title="Active Tasks"
-            description=""
-            statusText="3 Active Tasks"
-            statusColor="text-seva-yellow"
-            buttonText="View Tasks"
-            onClick={() => handleClick("Active Tasks")}
-            icon={<FaTasks />}
-          />
-          <Card
-            title="Reports Pending"
-            description=""
-            statusText="1 Pending"
-            statusColor="text-seva-yellow"
-            buttonText="View Reports"
-            onClick={() => handleClick("Reports Pending")}
-            icon={<FaFileAlt />}
-          />
-          <Card
-            title="Hours Today"
-            description=""
-            statusText="6.5"
-            buttonText="View Hours"
-            onClick={() => handleClick("Hours Today")}
-            icon={<FaClock />}
-          />
-        </div>
+          <p className="text-seva-gray-dark mb-6">
+            Here's your daily overview and quick actions for today's field
+            operations.
+          </p>
 
-        {/* Action Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-          <Card
-            title="Mark Attendance"
-            description="GPS-verified check-in with face verification"
-            statusText="Already Checked In"
-            statusColor="text-seva-green-dark"
-            buttonText="View Details"
-<<<<<<< HEAD
-            onClick={() => handleClick("Mark Attendance")}
-=======
-            onClick={() => setAttendanceOpen(true)}
->>>>>>> origin/main
-            icon={<FaUserCheck />}
-          />
-          <Card
-            title="View Assigned Tasks"
-            description="Today's tasks and their current status"
-            statusText="3 Active Tasks"
-            statusColor="text-seva-yellow"
-            buttonText="View Tasks"
-            onClick={() => handleClick("View Assigned Tasks")}
-            icon={<FaTasks />}
-          />
-          <Card
-            title="Upload Geo-Tagged Photos"
-            description="Before/after images with GPS tagging"
-            statusText="Ready to Upload"
-            buttonText="Upload Photos"
-            onClick={() => handleClick("Upload Photos")}
-            icon={<FaCamera />}
-          />
-          <Card
-            title="Submit Daily Report"
-            description="Complete your daily activity summary"
-            statusText="Report Pending"
-            statusColor="text-red-500"
-            buttonText="Submit Report"
-<<<<<<< HEAD
-            onClick={() => handleClick("Submit Daily Report")}
-=======
-            onClick={() => navigate("/field-reports")}
->>>>>>> origin/main
-            icon={<FaFileAlt />}
-          />
-          <Card
-            title="Request Leave"
-<<<<<<< HEAD
-            description="Submit leave request with date range"
-            statusText="No Pending Requests"
-            statusColor="text-seva-gray-dark"
-            buttonText="Request Leave"
-            onClick={() => handleClick("Request Leave")}
-=======
-            description="Submit leave request"
-            statusText="Mention reason"
-            statusColor="text-seva-gray-dark"
-            buttonText="Request Leave"
-            onClick={() => setLeaveOpen(true)}
->>>>>>> origin/main
-            icon={<FaCalendarAlt />}
-          />
-          <Card
-            title="Emergency Contact"
-            description="Quick access to team lead and support"
-            statusText="Available 24/7"
-            statusColor="text-seva-green-dark"
-            buttonText="Contact Support"
-            onClick={() => handleClick("Emergency Contact")}
-            icon={<FaPhone />}
-          />
-        </div>
+          {/* Top Status Cards */}
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+            <Card
+              title="Today's Status"
+              description=""
+              statusText="Checked In"
+              statusColor="text-seva-green-dark"
+              buttonText="View Details"
+              onClick={() => handleClick("Today's Status")}
+              icon={<FaUserCheck />}
+            />
+            <Card
+              title="Active Tasks"
+              description=""
+              statusText="3 Active Tasks"
+              statusColor="text-seva-yellow"
+              buttonText="View Tasks"
+              onClick={() => handleClick("Active Tasks")}
+              icon={<FaTasks />}
+            />
+            <Card
+              title="Reports Pending"
+              description=""
+              statusText="1 Pending"
+              statusColor="text-seva-yellow"
+              buttonText="View Reports"
+              onClick={() => handleClick("Reports Pending")}
+              icon={<FaFileAlt />}
+            />
+            <Card
+              title="Hours Today"
+              description=""
+              statusText="6.5"
+              buttonText="View Hours"
+              onClick={() => handleClick("Hours Today")}
+              icon={<FaClock />}
+            />
+          </div>
 
-        {/* Recent Activity */}
-        <div>
-          <h3 className="text-lg font-semibold mb-2 text-seva-gray-darker">Recent Activity</h3>
-          <ul className="flex flex-col gap-2">
-            <li className="bg-white p-4 rounded-md flex justify-between items-center shadow">
-              <span>Checked in at Riverside Park - Today at 9:15 AM</span>
-              <span className="text-seva-green-dark font-semibold">Completed</span>
-            </li>
-            <li className="bg-white p-4 rounded-md flex justify-between items-center shadow">
-              <span>Completed waste collection task - Today at 11:30 AM</span>
-              <span className="text-seva-green-dark font-semibold">Completed</span>
-            </li>
-            <li className="bg-white p-4 rounded-md flex justify-between items-center shadow">
-              <span>Uploaded field photos (5 images) - Today at 2:45 PM</span>
-              <span className="text-seva-green-dark font-semibold">Completed</span>
-            </li>
-          </ul>
-        </div>
-      </main>
-    </div>
-<<<<<<< HEAD
+          {/* Action Cards */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+            <Card
+              title="Mark Attendance"
+              description="GPS-verified check-in with face verification"
+              statusText="Already Checked In"
+              statusColor="text-seva-green-dark"
+              buttonText="View Details"
+              onClick={() => setAttendanceOpen(true)}
+              icon={<FaUserCheck />}
+            />
+            <Card
+              title="View Assigned Tasks"
+              description="Today's tasks and their current status"
+              statusText="3 Active Tasks"
+              statusColor="text-seva-yellow"
+              buttonText="View Tasks"
+              onClick={() => handleClick("View Assigned Tasks")}
+              icon={<FaTasks />}
+            />
+            <Card
+              title="Upload Geo-Tagged Photos"
+              description="Before/after images with GPS tagging"
+              statusText="Ready to Upload"
+              buttonText="Upload Photos"
+              onClick={() => handleClick("Upload Photos")}
+              icon={<FaCamera />}
+            />
+            <Card
+              title="Submit Daily Report"
+              description="Complete your daily activity summary"
+              statusText="Report Pending"
+              statusColor="text-red-500"
+              buttonText="Submit Report"
+              onClick={() => navigate("/field-reports")}
+              icon={<FaFileAlt />}
+            />
+            <Card
+              title="Request Leave"
+              description="Submit leave request"
+              statusText="Mention reason"
+              statusColor="text-seva-gray-dark"
+              buttonText="Request Leave"
+              onClick={() => setLeaveOpen(true)}
+              icon={<FaCalendarAlt />}
+            />
+            <Card
+              title="Emergency Contact"
+              description="Quick access to team lead and support"
+              statusText="Available 24/7"
+              statusColor="text-seva-green-dark"
+              buttonText="Contact Support"
+              onClick={() => handleClick("Emergency Contact")}
+              icon={<FaPhone />}
+            />
+          </div>
+
+          {/* Recent Activity */}
+          <div>
+            <h3 className="text-lg font-semibold mb-2 text-seva-gray-darker">
+              Recent Activity
+            </h3>
+            <ul className="flex flex-col gap-2">
+              <li className="bg-white p-4 rounded-md flex justify-between items-center shadow">
+                <span>
+                  Checked in at Riverside Park - Today at 9:15 AM
+                </span>
+                <span className="text-seva-green-dark font-semibold">
+                  Completed
+                </span>
+              </li>
+              <li className="bg-white p-4 rounded-md flex justify-between items-center shadow">
+                <span>
+                  Completed waste collection task - Today at 11:30 AM
+                </span>
+                <span className="text-seva-green-dark font-semibold">
+                  Completed
+                </span>
+              </li>
+              <li className="bg-white p-4 rounded-md flex justify-between items-center shadow">
+                <span>
+                  Uploaded field photos (5 images) - Today at 2:45 PM
+                </span>
+                <span className="text-seva-green-dark font-semibold">
+                  Completed
+                </span>
+              </li>
+            </ul>
+          </div>
+        </main>
+      </div>
+
+      <LeaveRequestDialog open={leaveOpen} onClose={() => setLeaveOpen(false)} />
+      <MarkAttendanceDialog
+        open={attendanceOpen}
+        onClose={() => setAttendanceOpen(false)}
+      />
+
+      {/* ===== CHATBOT ===== */}
+      <VolunteerChatbot />
+    </>
   );
 };
 
 export default Dashboard;
-=======
-    
-
-    <LeaveRequestDialog
-      open={leaveOpen}
-      onClose={() => setLeaveOpen(false)}
-    />
-
-     <MarkAttendanceDialog
-      open={attendanceOpen}
-      onClose={() => setAttendanceOpen(false)}
-    />
-    
-    {/* ===== CHATBOT (NEW, SAFE) ===== */}
-      <VolunteerChatbot />
-  </>
-  );
-}; 
-
-
-export default Dashboard;
->>>>>>> origin/main
