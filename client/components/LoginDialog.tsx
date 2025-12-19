@@ -1,8 +1,21 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import  api  from "../lib/api";
+import api from "../lib/api";
 
-const LoginDialog = () => {
+export interface LoginDialogProps {
+  role: string;
+  buttonText: string;
+  themeColor: string;
+  backgroundColor: string;
+  route: string; // still passed but NOT used directly
+}
+
+const LoginDialog = ({
+  role,
+  buttonText,
+  themeColor,
+  backgroundColor,
+}: LoginDialogProps) => {
   const [open, setOpen] = useState(false);
   const [email, setEmail] = useState("");
   const [otp, setOtp] = useState("");
@@ -11,13 +24,17 @@ const LoginDialog = () => {
 
   const navigate = useNavigate();
 
-  // 1️⃣ Send OTP
+  /* ======================
+     SEND OTP
+  ====================== */
   const sendOtp = async () => {
+    if (!email) return alert("Enter email");
+
     try {
       setLoading(true);
       await api.post("/auth/send-otp", { email });
       setOtpSent(true);
-      alert("OTP sent to your email");
+      alert("OTP sent");
     } catch {
       alert("Failed to send OTP");
     } finally {
@@ -25,23 +42,32 @@ const LoginDialog = () => {
     }
   };
 
-  // 2️⃣ Verify OTP
+  /* ======================
+     VERIFY OTP + ROLE REDIRECT
+  ====================== */
   const verifyOtp = async () => {
+    if (!otp) return alert("Enter OTP");
+
     try {
       setLoading(true);
+
       const res = await api.post("/auth/verify-otp", { email, otp });
 
+      const userRole = res.data.user.role; // ADMIN | LEADER | VOLUNTEER
+
       localStorage.setItem("token", res.data.token);
-      localStorage.setItem("role", res.data.user.role);
+      localStorage.setItem("role", userRole);
+      localStorage.setItem("email", email);
 
       setOpen(false);
 
-      if (res.data.user.role === "ADMIN") navigate("/admin-dashboard");
-      else if (res.data.user.role === "LEADER") navigate("/teamlead-dashboard");
+      // 🔁 ROLE BASED REDIRECT
+      if (userRole === "ADMIN") navigate("/admin-dashboard");
+      else if (userRole === "LEADER") navigate("/teamlead-dashboard");
       else navigate("/volunteer-dashboard");
 
     } catch {
-      alert("Invalid OTP");
+      alert("Invalid or expired OTP");
     } finally {
       setLoading(false);
     }
@@ -49,23 +75,28 @@ const LoginDialog = () => {
 
   return (
     <>
+      {/* SAME BUTTON */}
       <button
-        className="w-full bg-[#246427] text-white py-3 rounded-lg font-semibold"
+        className="w-full text-white py-3 rounded-lg font-semibold"
+        style={{ backgroundColor: themeColor }}
         onClick={() => setOpen(true)}
       >
-        Login
+        {buttonText}
       </button>
 
       {open && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg p-6 w-96">
-            <h2 className="text-xl font-bold mb-4 text-[#246427]">
-              Login via Email OTP
+          <div
+            className="rounded-lg p-6 w-96"
+            style={{ backgroundColor }}
+          >
+            <h2 className="text-xl font-bold mb-4" style={{ color: themeColor }}>
+              {role} Login
             </h2>
 
             <input
               type="email"
-              placeholder="Email address"
+              placeholder="Email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               className="w-full mb-3 p-2 border rounded"
@@ -74,10 +105,10 @@ const LoginDialog = () => {
             {otpSent && (
               <input
                 type="text"
-                placeholder="Enter OTP"
+                placeholder="OTP"
                 value={otp}
                 onChange={(e) => setOtp(e.target.value)}
-                className="w-full mb-3 p-2 border rounded"
+                className="w-full mb-4 p-2 border rounded"
               />
             )}
 
@@ -86,17 +117,19 @@ const LoginDialog = () => {
                 <button
                   onClick={sendOtp}
                   disabled={loading}
-                  className="px-4 py-2 bg-[#F8AC3B] text-white rounded"
+                  className="px-4 py-2 text-white rounded"
+                  style={{ backgroundColor: themeColor }}
                 >
-                  Send OTP
+                  {loading ? "Sending..." : "Send OTP"}
                 </button>
               ) : (
                 <button
                   onClick={verifyOtp}
                   disabled={loading}
-                  className="px-4 py-2 bg-[#246427] text-white rounded"
+                  className="px-4 py-2 text-white rounded"
+                  style={{ backgroundColor: themeColor }}
                 >
-                  Verify OTP
+                  {loading ? "Verifying..." : "Verify OTP"}
                 </button>
               )}
             </div>
