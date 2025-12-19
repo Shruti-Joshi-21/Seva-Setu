@@ -59,9 +59,13 @@ It provides:
 - Location heatmaps  
 - Volunteer hours tracking  
 - Awareness outreach metrics  
-- Sapling survival monitoring  
+- Sapling survival monitoring
 
-
+### 🧾 Auto Daily Summary Reports
+- Consolidated task status  
+- Attendance summaries  
+- Performance metrics
+  
 ### 🧑‍💼 Team Leader Tools
 - Attendance marking  
 - Task checklists  
