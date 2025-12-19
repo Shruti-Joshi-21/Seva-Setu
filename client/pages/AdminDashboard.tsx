@@ -1,6 +1,7 @@
 import React from "react";
 import { PieChart, Pie, Cell, LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer } from "recharts";
-
+import TeamLeadAddTaskDialog from "@/components/TeamLeadAddTaskDialog";
+import { useState } from "react";
 // --------------------
 // Color Palette
 // --------------------
@@ -55,6 +56,7 @@ const StatCard: React.FC<StatCardProps> = ({ title, value, subtitle, highlightCo
 // Main Dashboard
 // --------------------
 const Dashboard: React.FC = () => {
+  const [isOpen, setIsOpen] = useState(false);
   return (
     <div className="min-h-screen p-6" style={{ backgroundColor: COLORS.background }}>
 
@@ -64,7 +66,7 @@ const Dashboard: React.FC = () => {
           <h1 className="text-xl font-semibold" style={{ color: COLORS.primary }}>Seva Setu</h1>
           <p className="text-sm" style={{ color: COLORS.textSecondary }}>Field Operations Management</p>
         </div>
-        <div className="font-medium" style={{ color: COLORS.text }}>John Admin</div>
+        <div className="font-medium" style={{ color: COLORS.text }}>John Adams</div>
       </header>
 
       {/* Top Navigation */}
@@ -116,7 +118,13 @@ const Dashboard: React.FC = () => {
         <div className="md:col-span-2 bg-white p-6 rounded-xl shadow-sm">
           <div className="flex justify-between items-center mb-4">
             <h3 className="font-semibold" style={{ color: COLORS.text }}>Project Management</h3>
-            <button className="px-4 py-2 text-white rounded-lg" style={{ backgroundColor: COLORS.primary }}>+ New Project</button>
+             <button
+              onClick={() => setIsOpen(true)}
+              className="bg-[#246427] text-white px-4 py-2 rounded-lg hover:bg-[#81C784] transition"
+            >
+              + New Project
+            </button>
+            <TeamLeadAddTaskDialog isOpen={isOpen} onClose={() => setIsOpen(false)} />
           </div>
 
           {/* Project Card */}
