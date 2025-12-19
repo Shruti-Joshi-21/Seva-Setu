@@ -1,5 +1,8 @@
 // client/src/components/Dashboard.tsx
 import React from "react";
+<<<<<<< HEAD
+import { FaUserCheck, FaTasks, FaFileAlt, FaClock, FaCamera, FaPhone, FaCalendarAlt } from "react-icons/fa";
+=======
 import { useState } from "react";
 import MarkAttendanceDialog from "../components/MarkAttendanceDialog";
 import { FaUserCheck, FaTasks, FaFileAlt, FaClock, FaCamera, FaPhone, FaCalendarAlt } from "react-icons/fa";
@@ -7,6 +10,7 @@ import VolunteerChatbot from "../components/VolunteerChatbot";
 import LeaveRequestDialog from "../components/LeaveRequestDialog";
 import { useNavigate } from "react-router-dom";
 
+>>>>>>> origin/main
 
 // Define types for dashboard cards
 interface CardProps {
@@ -20,7 +24,11 @@ interface CardProps {
 }
 
 const Card: React.FC<CardProps> = ({ title, description, statusText, statusColor, buttonText, onClick, icon }) => (
+<<<<<<< HEAD
+  <div className="bg-seva-green-bg rounded-lg p-6 shadow-sm flex flex-col justify-between">
+=======
   <div className="bg-white rounded-lg p-6 shadow-sm flex flex-col justify-between">
+>>>>>>> origin/main
     <div className="flex items-center gap-3 mb-4 text-seva-green-dark">
       <div className="text-2xl">{icon}</div>
       <div>
@@ -30,6 +38,25 @@ const Card: React.FC<CardProps> = ({ title, description, statusText, statusColor
       </div>
     </div>
     <button
+<<<<<<< HEAD
+      onClick={onClick}
+      className="bg-seva-green-dark text-white rounded-md py-2 mt-3 hover:bg-seva-green-light transition"
+    >
+      {buttonText}
+    </button>
+  </div>
+);
+
+const Dashboard: React.FC = () => {
+  const handleClick = (name: string) => alert(`${name} clicked!`);
+
+  return (
+    <div className="flex min-h-screen bg-seva-green-bg">
+      {/* Sidebar */}
+      <aside className="w-64 bg-white shadow-md p-6 flex flex-col justify-between">
+        <div>
+          <h1 className="font-bold text-xl text-seva-green-dark mb-6">EcoField</h1>
+=======
   onClick={onClick}
   className="bg-seva-green text-white rounded-md py-2 mt-3 hover:bg-seva-green-light transition"
 >
@@ -56,6 +83,7 @@ const Dashboard: React.FC = () => {
         <aside className="w-64 bg-white shadow-md p-6 flex flex-col justify-between">
       <div>
           <h1 className="font-bold text-xl text-seva-green-dark mb-6">SevaSetu</h1>
+>>>>>>> origin/main
           <nav className="flex flex-col gap-4 text-seva-gray-dark">
             <button className="text-left hover:text-seva-green-dark">Dashboard</button>
             <button className="text-left hover:text-seva-green-dark">Attendance</button>
@@ -64,7 +92,16 @@ const Dashboard: React.FC = () => {
             <button className="text-left hover:text-seva-green-dark">Field Reports</button>
             <button className="text-left hover:text-seva-green-dark">Team Management</button>
           </nav>
+<<<<<<< HEAD
+        </div>
+        <div className="mt-6">
+          <button className="bg-seva-yellow text-white rounded-md px-4 py-2 w-full hover:opacity-90 transition">
+            Chat with Assistant
+          </button>
+        </div>
+=======
         </div> 
+>>>>>>> origin/main
       </aside>
 
       {/* Main Content */}
@@ -119,7 +156,11 @@ const Dashboard: React.FC = () => {
             statusText="Already Checked In"
             statusColor="text-seva-green-dark"
             buttonText="View Details"
+<<<<<<< HEAD
+            onClick={() => handleClick("Mark Attendance")}
+=======
             onClick={() => setAttendanceOpen(true)}
+>>>>>>> origin/main
             icon={<FaUserCheck />}
           />
           <Card
@@ -145,16 +186,28 @@ const Dashboard: React.FC = () => {
             statusText="Report Pending"
             statusColor="text-red-500"
             buttonText="Submit Report"
+<<<<<<< HEAD
+            onClick={() => handleClick("Submit Daily Report")}
+=======
             onClick={() => navigate("/field-reports")}
+>>>>>>> origin/main
             icon={<FaFileAlt />}
           />
           <Card
             title="Request Leave"
+<<<<<<< HEAD
+            description="Submit leave request with date range"
+            statusText="No Pending Requests"
+            statusColor="text-seva-gray-dark"
+            buttonText="Request Leave"
+            onClick={() => handleClick("Request Leave")}
+=======
             description="Submit leave request"
             statusText="Mention reason"
             statusColor="text-seva-gray-dark"
             buttonText="Request Leave"
             onClick={() => setLeaveOpen(true)}
+>>>>>>> origin/main
             icon={<FaCalendarAlt />}
           />
           <Card
@@ -188,6 +241,12 @@ const Dashboard: React.FC = () => {
         </div>
       </main>
     </div>
+<<<<<<< HEAD
+  );
+};
+
+export default Dashboard;
+=======
     
 
     <LeaveRequestDialog
@@ -208,3 +267,4 @@ const Dashboard: React.FC = () => {
 
 
 export default Dashboard;
+>>>>>>> origin/main

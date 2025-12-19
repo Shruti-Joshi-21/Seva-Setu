@@ -124,8 +124,7 @@ export default function Index() {
                   themeColor="#81C784"
                   backgroundColor="#F1F8E9"
                   route="/volunteer-dashboard"
-                  validUsername="volunteer"
-                  validPassword="vol123"
+         
                 />
 
               </div>
@@ -173,8 +172,7 @@ export default function Index() {
                     themeColor="#246427"
                     backgroundColor="#F1F8E9"
                     route="/teamlead-dashboard"
-                    validUsername="teamlead"
-                    validPassword="1234"
+                   
                   />
 
               </div>
@@ -222,8 +220,7 @@ export default function Index() {
                   themeColor="#F8AC3B"
                   backgroundColor="#FFF8E1"
                   route="/admin-dashboard"
-                  validUsername="admin"
-                  validPassword="admin123"
+        
                 />
 
               </div>
