@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import api from "@/lib/api";
 
 interface AttendanceDialogProps {
   open: boolean;
@@ -14,8 +15,9 @@ const AttendanceDialog: React.FC<AttendanceDialogProps> = ({ open, onClose }) =>
     null
   );
   const [error, setError] = useState<string>("");
+  const [loading, setLoading] = useState(false);
 
-  // Start camera
+  /* ================= CAMERA ================= */
   useEffect(() => {
     if (!open) return;
 
@@ -27,9 +29,17 @@ const AttendanceDialog: React.FC<AttendanceDialogProps> = ({ open, onClose }) =>
         }
       })
       .catch(() => setError("Camera access denied"));
+
+    return () => {
+      if (videoRef.current?.srcObject) {
+        (videoRef.current.srcObject as MediaStream)
+          .getTracks()
+          .forEach((track) => track.stop());
+      }
+    };
   }, [open]);
 
-  // Get GPS location
+  /* ================= LOCATION ================= */
   useEffect(() => {
     if (!open) return;
 
@@ -45,7 +55,7 @@ const AttendanceDialog: React.FC<AttendanceDialogProps> = ({ open, onClose }) =>
     );
   }, [open]);
 
-  // Capture selfie
+  /* ================= CAPTURE ================= */
   const captureImage = () => {
     if (!videoRef.current || !canvasRef.current) return;
 
@@ -56,24 +66,38 @@ const AttendanceDialog: React.FC<AttendanceDialogProps> = ({ open, onClose }) =>
     canvasRef.current.height = videoRef.current.videoHeight;
 
     ctx.drawImage(videoRef.current, 0, 0);
-    setImage(canvasRef.current.toDataURL("image/png"));
+    setImage(canvasRef.current.toDataURL("image/jpeg"));
   };
 
-  const submitAttendance = () => {
+  /* ================= SUBMIT ================= */
+  const submitAttendance = async () => {
     if (!image || !location) {
       alert("Selfie and location are required");
       return;
     }
 
-    const payload = {
-      selfie: image,
-      latitude: location.lat,
-      longitude: location.lng,
-      timestamp: new Date().toISOString(),
-    };
+    try {
+      setLoading(true);
 
-    console.log("Attendance Data:", payload);
-    onClose();
+      // base64 → Blob
+      const blob = await fetch(image).then((r) => r.blob());
+
+      const formData = new FormData();
+      formData.append("image", blob, "attendance.jpg");
+      formData.append("latitude", String(location.lat));
+      formData.append("longitude", String(location.lng));
+
+      await api.post("/attendance/mark", formData);
+
+      alert("Attendance marked successfully");
+      setImage(null);
+      onClose();
+    } catch (err: any) {
+      console.error(err);
+      alert(err.response?.data?.message || "Attendance failed");
+    } finally {
+      setLoading(false);
+    }
   };
 
   if (!open) return null;
@@ -114,8 +138,12 @@ const AttendanceDialog: React.FC<AttendanceDialogProps> = ({ open, onClose }) =>
           <button style={styles.secondaryBtn} onClick={onClose}>
             Cancel
           </button>
-          <button style={styles.primaryBtn} onClick={submitAttendance}>
-            Submit Attendance
+          <button
+            style={styles.primaryBtn}
+            onClick={submitAttendance}
+            disabled={loading}
+          >
+            {loading ? "Submitting..." : "Submit Attendance"}
           </button>
         </div>
       </div>
@@ -125,6 +153,7 @@ const AttendanceDialog: React.FC<AttendanceDialogProps> = ({ open, onClose }) =>
 
 export default AttendanceDialog;
 
+/* ================= STYLES (UNCHANGED) ================= */
 const styles: { [key: string]: React.CSSProperties } = {
   overlay: {
     position: "fixed",

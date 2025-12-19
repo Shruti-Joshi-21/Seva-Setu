@@ -3,9 +3,22 @@ import { Task } from "../models/Task";
 
 export const createTask = async (req: any, res: Response) => {
   try {
-    const { title, description, latitude, longitude, date } = req.body;
+    const {
+      title,
+      description,
+      location,
+      startDate,
+      latitude,
+      longitude,
+      date,
+    } = req.body;
 
-    if (!title || !latitude || !longitude || !date) {
+    // ✅ Accept BOTH formats (UI safe)
+    const taskDate = date || startDate;
+    const taskLatitude = latitude ?? 0;
+    const taskLongitude = longitude ?? 0;
+
+    if (!title || !taskDate) {
       return res.status(400).json({
         message: "Missing required fields",
       });
@@ -21,10 +34,11 @@ export const createTask = async (req: any, res: Response) => {
       title,
       description,
       location: {
-        latitude,
-        longitude,
+        latitude: taskLatitude,
+        longitude: taskLongitude,
+        address: location || "General Area",
       },
-      date,
+      date: new Date(taskDate),
       createdBy: req.user.id,
     });
 

@@ -2,7 +2,7 @@ import type { Response } from "express";
 import { User } from "../models/User";
 import { Task } from "../models/Task";
 import { Attendance } from "../models/Attendance";
-import { Leave } from "../models/Leave"; // ✅ ADD THIS
+import { Leave } from "../models/Leave";
 
 import { generateFaceEmbedding } from "../utils/faceEmbedding";
 import { compareEmbeddings } from "../utils/faceCompare";
@@ -14,16 +14,24 @@ const MAX_DISTANCE_METERS = 100;
 
 export const checkInAttendance = async (req: any, res: Response) => {
   try {
-    const { taskId, latitude, longitude } = req.body;
+    const { latitude, longitude } = req.body;
+    const file = req.file;
 
-    if (!req.file || !taskId || !latitude || !longitude) {
+    /* =========================
+       0️⃣ Basic validation
+    ========================= */
+    if (!file || !latitude || !longitude) {
       return res.status(400).json({
         status: "REJECTED",
         reason: "Missing required data",
       });
     }
 
-    // 🔴 STEP 0: CHECK APPROVED LEAVE (NEW)
+    const imageBuffer = file.buffer;
+
+    /* =========================
+       1️⃣ Leave check
+    ========================= */
     const now = new Date();
     const onLeave = await Leave.findOne({
       user: req.user.id,
@@ -39,8 +47,11 @@ export const checkInAttendance = async (req: any, res: Response) => {
       });
     }
 
-    // 1️⃣ Get user with face embedding
+    /* =========================
+       2️⃣ Face registered?
+    ========================= */
     const user = await User.findById(req.user.id).select("+faceEmbedding");
+
     if (!user?.faceEmbedding) {
       return res.json({
         status: "REJECTED",
@@ -48,11 +59,12 @@ export const checkInAttendance = async (req: any, res: Response) => {
       });
     }
 
-    // 2️⃣ Extract face embedding
-    const newEmbedding = await generateFaceEmbedding(req.file.buffer);
-
-    // 3️⃣ Compare face
+    /* =========================
+       3️⃣ Face verification
+    ========================= */
+    const newEmbedding = await generateFaceEmbedding(imageBuffer);
     const score = compareEmbeddings(user.faceEmbedding, newEmbedding);
+
     if (score < FACE_THRESHOLD) {
       return res.json({
         status: "REJECTED",
@@ -61,8 +73,10 @@ export const checkInAttendance = async (req: any, res: Response) => {
       });
     }
 
-    // 4️⃣ Image reuse check
-    const imageHashValue = hashImage(req.file.buffer);
+    /* =========================
+       4️⃣ Image reuse check
+    ========================= */
+    const imageHashValue = hashImage(imageBuffer);
     const reused = await Attendance.findOne({ imageHash: imageHashValue });
 
     if (reused) {
@@ -72,35 +86,51 @@ export const checkInAttendance = async (req: any, res: Response) => {
       });
     }
 
-    // 5️⃣ GPS validation
-    const task = await Task.findById(taskId);
-    if (!task?.location) {
+    /* =========================
+       5️⃣ Find nearest active task
+    ========================= */
+    const tasks = await Task.find({
+      status: { $ne: "COMPLETED" },
+      location: { $exists: true },
+    });
+
+    let nearestTask: any = null;
+    let minDistance = Infinity;
+
+    for (const task of tasks) {
+      if (!task.location?.latitude || !task.location?.longitude) continue;
+
+      const dist = getDistanceInMeters(
+        Number(latitude),
+        Number(longitude),
+        task.location.latitude,
+        task.location.longitude
+      );
+
+      if (dist < minDistance) {
+        minDistance = dist;
+        nearestTask = task;
+      }
+    }
+
+    if (!nearestTask || minDistance > MAX_DISTANCE_METERS) {
       return res.json({
         status: "REJECTED",
-        reason: "Invalid task location",
+        reason: "No nearby task found",
+        distance: minDistance,
       });
     }
 
-    const distance = getDistanceInMeters(
-      latitude,
-      longitude,
-      task.location.latitude!,
-      task.location.longitude!
-    );
-
-    if (distance > MAX_DISTANCE_METERS) {
-      return res.json({
-        status: "REJECTED",
-        reason: "Outside task location",
-        distance,
-      });
-    }
-
-    // 6️⃣ Store attendance
+    /* =========================
+       6️⃣ Save attendance
+    ========================= */
     await Attendance.create({
-      user: user._id,
-      task: taskId,
-      location: { latitude, longitude },
+      user: req.user.id,
+      task: nearestTask._id,
+      location: {
+        latitude: Number(latitude),
+        longitude: Number(longitude),
+      },
       imageHash: imageHashValue,
       faceMatchScore: score,
       status: "VALID",
@@ -109,7 +139,8 @@ export const checkInAttendance = async (req: any, res: Response) => {
     return res.json({
       status: "VALID",
       faceScore: score,
-      distance,
+      distance: minDistance,
+      taskId: nearestTask._id,
     });
   } catch (err) {
     console.error("ATTENDANCE ERROR:", err);

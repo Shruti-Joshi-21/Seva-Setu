@@ -19,7 +19,9 @@ const SignInDialog: React.FC<SignInDialogProps> = ({ open, onClose }) => {
 
   const navigate = useNavigate();
 
-  /* CAMERA */
+  /* ======================
+     CAMERA START / STOP
+  ====================== */
   useEffect(() => {
     if (!open) return;
 
@@ -39,12 +41,14 @@ const SignInDialog: React.FC<SignInDialogProps> = ({ open, onClose }) => {
     };
   }, [open]);
 
-  /* CAPTURE FACE */
+  /* ======================
+     CAPTURE FACE
+  ====================== */
   const captureFace = () => {
     if (!videoRef.current || !canvasRef.current) return;
 
-    const canvas = canvasRef.current;
     const video = videoRef.current;
+    const canvas = canvasRef.current;
 
     canvas.width = video.videoWidth;
     canvas.height = video.videoHeight;
@@ -55,36 +59,53 @@ const SignInDialog: React.FC<SignInDialogProps> = ({ open, onClose }) => {
     setFaceCaptured(true);
   };
 
-  /* SIGN IN */
+  /* ======================
+     SIGN IN + FACE REGISTER
+  ====================== */
   const handleSignIn = async () => {
     if (!faceCaptured || !canvasRef.current) return;
 
     try {
       setLoading(true);
 
-      const blob = await new Promise<Blob>((resolve) =>
-        canvasRef.current!.toBlob((b) => resolve(b!), "image/jpeg")
-      );
+      /* 🔑 CHECK ONE-TIME FLAG */
+      const faceAlreadyRegistered =
+        localStorage.getItem("faceRegistered") === "true";
 
-      const formData = new FormData();
-      formData.append("image", blob, "face.jpg");
+      if (!faceAlreadyRegistered) {
+        // ⛔ Register face ONLY ONCE
+        const blob = await new Promise<Blob>((resolve) =>
+          canvasRef.current!.toBlob((b) => resolve(b!), "image/jpeg")
+        );
 
-      await api.post("/face/register", formData);
+        const formData = new FormData();
+        formData.append("image", blob, "face.jpg");
 
-      /* ✅ NORMALIZE ROLE (THIS FIXES EVERYTHING) */
+        await api.post("/face/register", formData);
+
+        // ✅ Mark face registered
+        localStorage.setItem("faceRegistered", "true");
+      }
+
+      /* ======================
+         NORMALIZE ROLE
+      ====================== */
       let normalizedRole: "ADMIN" | "LEADER" | "VOLUNTEER" = "VOLUNTEER";
-
       if (role === "Administrator") normalizedRole = "ADMIN";
       else if (role === "Team Lead") normalizedRole = "LEADER";
 
-      /* ✅ STORE */
+      /* ======================
+         STORE USER DATA
+      ====================== */
       localStorage.setItem("userName", name);
       localStorage.setItem("email", email);
       localStorage.setItem("role", normalizedRole);
 
       onClose();
 
-      /* ✅ ROLE BASED REDIRECT */
+      /* ======================
+         ROLE-BASED REDIRECT
+      ====================== */
       if (normalizedRole === "ADMIN") {
         navigate("/admin-dashboard");
       } else if (normalizedRole === "LEADER") {
@@ -92,9 +113,9 @@ const SignInDialog: React.FC<SignInDialogProps> = ({ open, onClose }) => {
       } else {
         navigate("/volunteer-dashboard");
       }
-    } catch (err) {
-      console.error(err);
-      alert("Face registration failed");
+    } catch (error) {
+      console.error(error);
+      alert("Face registration or login failed");
     } finally {
       setLoading(false);
     }
@@ -102,6 +123,9 @@ const SignInDialog: React.FC<SignInDialogProps> = ({ open, onClose }) => {
 
   if (!open) return null;
 
+  /* ======================
+     UI (UNCHANGED)
+  ====================== */
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
       <div className="w-full max-w-lg rounded-2xl p-6 shadow-xl bg-[#F1F8E9]">
@@ -139,7 +163,12 @@ const SignInDialog: React.FC<SignInDialogProps> = ({ open, onClose }) => {
 
         <div className="mt-5">
           <div className="relative rounded-lg overflow-hidden border">
-            <video ref={videoRef} autoPlay playsInline className="w-full h-56 object-cover" />
+            <video
+              ref={videoRef}
+              autoPlay
+              playsInline
+              className="w-full h-56 object-cover"
+            />
             <canvas ref={canvasRef} className="hidden" />
           </div>
 
