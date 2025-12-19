@@ -45,33 +45,46 @@ const LoginDialog = ({
   /* ======================
      VERIFY OTP + ROLE REDIRECT
   ====================== */
-  const verifyOtp = async () => {
-    if (!otp) return alert("Enter OTP");
+ const verifyOtp = async () => {
+  if (!otp) return alert("Enter OTP");
 
-    try {
-      setLoading(true);
+  try {
+    setLoading(true);
 
-      const res = await api.post("/auth/verify-otp", { email, otp });
+    const res = await api.post("/auth/verify-otp", { email, otp });
 
-      const userRole = res.data.user.role; // ADMIN | LEADER | VOLUNTEER
+    // 🔐 store token
+    localStorage.setItem("token", res.data.token);
+    localStorage.setItem("email", email);
 
-      localStorage.setItem("token", res.data.token);
-      localStorage.setItem("role", userRole);
-      localStorage.setItem("email", email);
+    // ✅ ROLE COMES FROM UI CARD (HERE 👇)
+    const normalizedRole =
+      role === "Admin"
+        ? "ADMIN"
+        : role === "Team Lead"
+        ? "LEADER"
+        : "VOLUNTEER";
 
-      setOpen(false);
+    localStorage.setItem("role", normalizedRole);
 
-      // 🔁 ROLE BASED REDIRECT
-      if (userRole === "ADMIN") navigate("/admin-dashboard");
-      else if (userRole === "LEADER") navigate("/teamlead-dashboard");
-      else navigate("/volunteer-dashboard");
+    setOpen(false);
 
-    } catch {
-      alert("Invalid or expired OTP");
-    } finally {
-      setLoading(false);
+    // 🔁 ROLE-BASED REDIRECT (FIXED)
+    if (normalizedRole === "ADMIN") {
+      navigate("/admin-dashboard");
+    } else if (normalizedRole === "LEADER") {
+      navigate("/teamlead-dashboard");
+    } else {
+      navigate("/volunteer-dashboard");
     }
-  };
+
+  } catch {
+    alert("Invalid or expired OTP");
+  } finally {
+    setLoading(false);
+  }
+};
+
 
   return (
     <>

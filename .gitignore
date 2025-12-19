@@ -13,8 +13,6 @@ dist-ssr
 *.local
 <<<<<<< HEAD
 .env
-=======
->>>>>>> origin/main
 
 # Editor directories and files
 .vscode/*
