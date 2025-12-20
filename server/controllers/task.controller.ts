@@ -1,5 +1,6 @@
 import type { Response } from "express";
 import { Task } from "../models/Task";
+import { Attendance } from "../models/Attendance";
 
 export const createTask = async (req: any, res: Response) => {
   try {
@@ -53,3 +54,23 @@ export const createTask = async (req: any, res: Response) => {
     });
   }
 };
+
+export const getMyTasks = async (req: any, res: Response) => {
+  try {
+    // find tasks where user has marked attendance
+    const attendances = await Attendance.find({ user: req.user.id })
+      .populate("task");
+
+    const tasks = attendances
+      .map((a) => a.task)
+      .filter(Boolean);
+
+    return res.json(tasks);
+  } catch (error) {
+    console.error("GET MY TASKS ERROR:", error);
+    return res.status(500).json({
+      message: "Failed to fetch tasks",
+    });
+  }
+};
+

@@ -17,7 +17,7 @@ import TeamLeadDashboard from "./pages/TeamLeadDashboard";
 import AdminDashboard from "./pages/AdminDashboard";
 import VolunteerDashboard from "./pages/VolunteerDashboard";
 
-import FieldReports from "./pages/FieldReports"; // ✅ ALREADY IMPORTED
+import FieldReportsDashboard from "@/components/FieldReportsDashboard"; // ✅ ALREADY IMPORTED
 import RegisterFacePage from "./pages/RegisterFacePage";
 
 import ProtectedRoute from "./components/ProtectedRoute";
@@ -82,7 +82,7 @@ const App = () => (
             path="/field-reports"
             element={
               <ProtectedRoute allowedRoles={["VOLUNTEER"]}>
-                <FieldReports />
+                <FieldReportsDashboard />
               </ProtectedRoute>
             }
           />

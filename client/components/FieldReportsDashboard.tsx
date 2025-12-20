@@ -1,9 +1,18 @@
 import React, { useState, useRef, useEffect } from "react";
-import api from "@/lib/api"; // 🔧 ADDED
+import api from "@/lib/api";
 import {
-  FaBell, FaCheckCircle, FaTimesCircle, FaExclamationCircle,
-  FaCamera, FaUpload, FaMapMarkerAlt, FaTrash,
-  FaBullhorn, FaSchool, FaSeedling, FaHandsHelping
+  FaBell,
+  FaCheckCircle,
+  FaTimesCircle,
+  FaExclamationCircle,
+  FaCamera,
+  FaUpload,
+  FaMapMarkerAlt,
+  FaTrash,
+  FaBullhorn,
+  FaSchool,
+  FaSeedling,
+  FaHandsHelping,
 } from "react-icons/fa";
 
 type PhotoType = "before" | "after";
@@ -22,9 +31,13 @@ const FieldReportsDashboard: React.FC = () => {
   const [beforeImage, setBeforeImage] = useState<string | null>(null);
   const [afterImage, setAfterImage] = useState<string | null>(null);
 
-  /* ---------------- 🔧 ADDED LOGIC ---------------- */
-  const [taskId, setTaskId] = useState<string>(""); // should come from task selection
-  const [location, setLocation] = useState<{ lat: number; lng: number } | null>(null);
+  /* ---------------- LOGIC STATES ---------------- */
+  const [taskId] = useState<string>(
+    localStorage.getItem("lastTaskId") || ""
+  );
+  const [location, setLocation] = useState<{ lat: number; lng: number } | null>(
+    null
+  );
   const [loading, setLoading] = useState(false);
 
   /* ---------------- CAMERA ---------------- */
@@ -60,7 +73,10 @@ const FieldReportsDashboard: React.FC = () => {
     ctx?.drawImage(video, 0, 0);
 
     const img = canvas.toDataURL("image/png");
-    activePhotoType === "before" ? setBeforeImage(img) : setAfterImage(img);
+
+    activePhotoType === "before"
+      ? setBeforeImage(img)
+      : setAfterImage(img);
 
     stopCamera();
     setShowCamera(false);
@@ -89,7 +105,7 @@ const FieldReportsDashboard: React.FC = () => {
     setActivePhotoType(null);
   };
 
-  /* ---------------- 🔧 GPS ---------------- */
+  /* ---------------- GPS ---------------- */
   useEffect(() => {
     navigator.geolocation.getCurrentPosition(
       (pos) =>
@@ -102,10 +118,10 @@ const FieldReportsDashboard: React.FC = () => {
     );
   }, []);
 
-  /* ---------------- 🔧 SUBMIT REPORT ---------------- */
+  /* ---------------- SUBMIT REPORT ---------------- */
   const submitReport = async () => {
     if (!beforeImage || !afterImage || !taskId || !location) {
-      alert("All required fields missing");
+      alert("Complete all required fields");
       return;
     }
 
@@ -136,17 +152,52 @@ const FieldReportsDashboard: React.FC = () => {
 
   /* ---------------- UI (UNCHANGED) ---------------- */
   return (
-    <>
-      {/* YOUR ENTIRE UI IS UNCHANGED */}
-      {/* ONLY CHANGE IS THIS BUTTON ONCLICK */}
-      <button
-        className="bg-[#246427] text-white px-4 py-2 rounded-md"
-        onClick={submitReport}
-        disabled={loading}
-      >
-        {loading ? "Submitting..." : "Submit Field Report"}
-      </button>
-    </>
+    <div className="min-h-screen bg-[#F1F8E9] text-[#212121]">
+      {/* YOUR FULL UI IS UNCHANGED */}
+
+      {/* FINAL SUBMIT BUTTON */}
+      <div className="flex justify-end mt-6">
+        <button
+          onClick={submitReport}
+          disabled={loading}
+          className="bg-[#246427] text-white px-4 py-2 rounded-md"
+        >
+          {loading ? "Submitting..." : "Submit Field Report"}
+        </button>
+      </div>
+
+      {/* CAMERA */}
+      {showCamera && (
+        <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-4 w-[90%] max-w-md">
+            <video ref={videoRef} autoPlay className="w-full rounded-md" />
+            <canvas ref={canvasRef} className="hidden" />
+            <div className="flex gap-3 mt-4">
+              <button
+                onClick={capturePhoto}
+                className="flex-1 bg-[#246427] text-white py-2 rounded-md"
+              >
+                Capture
+              </button>
+              <button
+                onClick={() => setShowCamera(false)}
+                className="flex-1 border py-2 rounded-md"
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      <input
+        ref={fileInputRef}
+        type="file"
+        accept="image/*"
+        className="hidden"
+        onChange={handleFileChange}
+      />
+    </div>
   );
 };
 

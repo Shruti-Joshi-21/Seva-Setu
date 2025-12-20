@@ -87,14 +87,19 @@ const AttendanceDialog: React.FC<AttendanceDialogProps> = ({ open, onClose }) =>
       formData.append("latitude", String(location.lat));
       formData.append("longitude", String(location.lng));
 
-      await api.post("/attendance/mark", formData);
+      const res = await api.post("/attendance/mark", formData);
+
+      // ✅ STORE TASK ID FOR FIELD REPORT
+      if (res.data.status === "VALID" && res.data.taskId) {
+        localStorage.setItem("lastTaskId", res.data.taskId);
+      }
 
       alert("Attendance marked successfully");
       setImage(null);
       onClose();
     } catch (err: any) {
       console.error(err);
-      alert(err.response?.data?.message || "Attendance failed");
+      alert(err.response?.data?.reason || "Attendance failed");
     } finally {
       setLoading(false);
     }
@@ -111,12 +116,7 @@ const AttendanceDialog: React.FC<AttendanceDialogProps> = ({ open, onClose }) =>
 
         {!image ? (
           <>
-            <video
-              ref={videoRef}
-              autoPlay
-              playsInline
-              style={styles.video}
-            />
+            <video ref={videoRef} autoPlay playsInline style={styles.video} />
             <button style={styles.primaryBtn} onClick={captureImage}>
               Capture Selfie
             </button>
