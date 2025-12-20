@@ -56,49 +56,40 @@ const SignInDialog: React.FC<SignInDialogProps> = ({ open, onClose }) => {
   };
 
   /* SIGN IN */
-  const handleSignIn = async () => {
-    if (!faceCaptured || !canvasRef.current) return;
+  const handleSignUp = async () => {
+  if (!faceCaptured || !canvasRef.current) return;
 
-    try {
-      setLoading(true);
+  setLoading(true);
 
-      const blob = await new Promise<Blob>((resolve) =>
-        canvasRef.current!.toBlob((b) => resolve(b!), "image/jpeg")
-      );
+  const blob = await new Promise<Blob>((resolve) =>
+    canvasRef.current!.toBlob((b) => resolve(b!), "image/jpeg")
+  );
 
-      const formData = new FormData();
-      formData.append("image", blob, "face.jpg");
+  const formData = new FormData();
+  formData.append("image", blob);
+  formData.append("name", name);
+  formData.append("email", email);
 
-      await api.post("/face/register", formData);
+  let normalizedRole = "VOLUNTEER";
+  if (role === "Administrator") normalizedRole = "ADMIN";
+  else if (role === "Team Lead") normalizedRole = "LEADER";
 
-      /* ✅ NORMALIZE ROLE (THIS FIXES EVERYTHING) */
-      let normalizedRole: "ADMIN" | "LEADER" | "VOLUNTEER" = "VOLUNTEER";
+  formData.append("role", normalizedRole);
 
-      if (role === "Administrator") normalizedRole = "ADMIN";
-      else if (role === "Team Lead") normalizedRole = "LEADER";
+  const res = await api.post("/auth/signup", formData);
 
-      /* ✅ STORE */
-      localStorage.setItem("userName", name);
-      localStorage.setItem("email", email);
-      localStorage.setItem("role", normalizedRole);
+  localStorage.setItem("token", res.data.token);
+  localStorage.setItem("user", JSON.stringify(res.data.user));
 
-      onClose();
+  navigate(
+    normalizedRole === "ADMIN"
+      ? "/admin-dashboard"
+      : normalizedRole === "LEADER"
+      ? "/teamlead-dashboard"
+      : "/volunteer-dashboard"
+  );
+};
 
-      /* ✅ ROLE BASED REDIRECT */
-      if (normalizedRole === "ADMIN") {
-        navigate("/admin-dashboard");
-      } else if (normalizedRole === "LEADER") {
-        navigate("/teamlead-dashboard");
-      } else {
-        navigate("/volunteer-dashboard");
-      }
-    } catch (err) {
-      console.error(err);
-      alert("Face registration failed");
-    } finally {
-      setLoading(false);
-    }
-  };
 
   if (!open) return null;
 
@@ -159,7 +150,7 @@ const SignInDialog: React.FC<SignInDialogProps> = ({ open, onClose }) => {
           </button>
           <button
             disabled={!faceCaptured || loading}
-            onClick={handleSignIn}
+            onClick={handleSignUp}
             className="px-6 py-2 rounded-lg text-white font-semibold bg-[#246427]"
           >
             {loading ? "Signing In..." : "Sign In"}

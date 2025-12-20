@@ -62,7 +62,7 @@ export default function Header() {
           onClick={() => setOpenSignIn(true)}
           className="px-5 py-2 rounded-lg font-semibold text-white bg-[#F8AC3B] hover:opacity-90"
         >
-          Sign in
+          Sign up
         </button>
 
         {/* Dialog */}
