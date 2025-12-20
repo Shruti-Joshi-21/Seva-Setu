@@ -35,7 +35,6 @@ export const verifyOTP = async (req: Request, res: Response) => {
   const { email, otp } = req.body;
 
   const record = otpStore.get(email);
-
   if (!record || record.otp !== otp) {
     return res.status(401).json({ message: "Invalid OTP" });
   }
@@ -45,13 +44,10 @@ export const verifyOTP = async (req: Request, res: Response) => {
     return res.status(401).json({ message: "OTP expired" });
   }
 
-  let user = await User.findOne({ email });
-
+  const user = await User.findOne({ email });
   if (!user) {
-    user = await User.create({
-      email,
-      name: "New User",
-      role: "VOLUNTEER",
+    return res.status(404).json({
+      message: "User not registered. Please sign up first.",
     });
   }
 
@@ -66,6 +62,7 @@ export const verifyOTP = async (req: Request, res: Response) => {
     token,
     user: {
       id: user._id,
+      name: user.name,
       email: user.email,
       role: user.role,
     },

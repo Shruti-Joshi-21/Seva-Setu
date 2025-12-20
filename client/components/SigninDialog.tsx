@@ -59,67 +59,41 @@ const SignInDialog: React.FC<SignInDialogProps> = ({ open, onClose }) => {
     setFaceCaptured(true);
   };
 
-  /* ======================
-     SIGN IN + FACE REGISTER
-  ====================== */
-  const handleSignIn = async () => {
-    if (!faceCaptured || !canvasRef.current) return;
+  /* SIGN IN */
+  const handleSignUp = async () => {
+  if (!faceCaptured || !canvasRef.current) return;
 
-    try {
-      setLoading(true);
+  setLoading(true);
 
-      /* 🔑 CHECK ONE-TIME FLAG */
-      const faceAlreadyRegistered =
-        localStorage.getItem("faceRegistered") === "true";
+  const blob = await new Promise<Blob>((resolve) =>
+    canvasRef.current!.toBlob((b) => resolve(b!), "image/jpeg")
+  );
 
-      if (!faceAlreadyRegistered) {
-        // ⛔ Register face ONLY ONCE
-        const blob = await new Promise<Blob>((resolve) =>
-          canvasRef.current!.toBlob((b) => resolve(b!), "image/jpeg")
-        );
+  const formData = new FormData();
+  formData.append("image", blob);
+  formData.append("name", name);
+  formData.append("email", email);
 
-        const formData = new FormData();
-        formData.append("image", blob, "face.jpg");
+  let normalizedRole = "VOLUNTEER";
+  if (role === "Administrator") normalizedRole = "ADMIN";
+  else if (role === "Team Lead") normalizedRole = "LEADER";
 
-        await api.post("/face/register", formData);
+  formData.append("role", normalizedRole);
 
-        // ✅ Mark face registered
-        localStorage.setItem("faceRegistered", "true");
-      }
+  const res = await api.post("/auth/signup", formData);
 
-      /* ======================
-         NORMALIZE ROLE
-      ====================== */
-      let normalizedRole: "ADMIN" | "LEADER" | "VOLUNTEER" = "VOLUNTEER";
-      if (role === "Administrator") normalizedRole = "ADMIN";
-      else if (role === "Team Lead") normalizedRole = "LEADER";
+  localStorage.setItem("token", res.data.token);
+  localStorage.setItem("user", JSON.stringify(res.data.user));
 
-      /* ======================
-         STORE USER DATA
-      ====================== */
-      localStorage.setItem("userName", name);
-      localStorage.setItem("email", email);
-      localStorage.setItem("role", normalizedRole);
+  navigate(
+    normalizedRole === "ADMIN"
+      ? "/admin-dashboard"
+      : normalizedRole === "LEADER"
+      ? "/teamlead-dashboard"
+      : "/volunteer-dashboard"
+  );
+};
 
-      onClose();
-
-      /* ======================
-         ROLE-BASED REDIRECT
-      ====================== */
-      if (normalizedRole === "ADMIN") {
-        navigate("/admin-dashboard");
-      } else if (normalizedRole === "LEADER") {
-        navigate("/teamlead-dashboard");
-      } else {
-        navigate("/volunteer-dashboard");
-      }
-    } catch (error) {
-      console.error(error);
-      alert("Face registration or login failed");
-    } finally {
-      setLoading(false);
-    }
-  };
 
   if (!open) return null;
 
@@ -188,7 +162,7 @@ const SignInDialog: React.FC<SignInDialogProps> = ({ open, onClose }) => {
           </button>
           <button
             disabled={!faceCaptured || loading}
-            onClick={handleSignIn}
+            onClick={handleSignUp}
             className="px-6 py-2 rounded-lg text-white font-semibold bg-[#246427]"
           >
             {loading ? "Signing In..." : "Sign In"}

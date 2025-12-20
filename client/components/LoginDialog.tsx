@@ -3,15 +3,12 @@ import { useNavigate } from "react-router-dom";
 import api from "../lib/api";
 
 export interface LoginDialogProps {
-  role: string;
   buttonText: string;
   themeColor: string;
   backgroundColor: string;
-  route: string; // still passed but NOT used directly
 }
 
 const LoginDialog = ({
-  role,
   buttonText,
   themeColor,
   backgroundColor,
@@ -34,7 +31,7 @@ const LoginDialog = ({
       setLoading(true);
       await api.post("/auth/send-otp", { email });
       setOtpSent(true);
-      alert("OTP sent");
+      alert("OTP sent to email");
     } catch {
       alert("Failed to send OTP");
     } finally {
@@ -43,52 +40,41 @@ const LoginDialog = ({
   };
 
   /* ======================
-     VERIFY OTP + ROLE REDIRECT
+     VERIFY OTP (FINAL)
   ====================== */
- const verifyOtp = async () => {
-  if (!otp) return alert("Enter OTP");
+  const verifyOtp = async () => {
+    if (!otp) return alert("Enter OTP");
 
-  try {
-    setLoading(true);
+    try {
+      setLoading(true);
 
-    const res = await api.post("/auth/verify-otp", { email, otp });
+      const res = await api.post("/auth/verify-otp", { email, otp });
 
-    // 🔐 store token
-    localStorage.setItem("token", res.data.token);
-    localStorage.setItem("email", email);
+      const { token, user } = res.data;
 
-    // ✅ ROLE COMES FROM UI CARD (HERE 👇)
-    const normalizedRole =
-      role === "Admin"
-        ? "ADMIN"
-        : role === "Team Lead"
-        ? "LEADER"
-        : "VOLUNTEER";
+      // 🔐 STORE AUTH STATE
+      localStorage.setItem("token", token);
+      localStorage.setItem("user", JSON.stringify(user));
 
-    localStorage.setItem("role", normalizedRole);
+      setOpen(false);
 
-    setOpen(false);
-
-    // 🔁 ROLE-BASED REDIRECT (FIXED)
-    if (normalizedRole === "ADMIN") {
-      navigate("/admin-dashboard");
-    } else if (normalizedRole === "LEADER") {
-      navigate("/teamlead-dashboard");
-    } else {
-      navigate("/volunteer-dashboard");
+      // ✅ ROLE-BASED REDIRECT (FROM BACKEND)
+      if (user.role === "ADMIN") {
+        navigate("/admin-dashboard");
+      } else if (user.role === "LEADER") {
+        navigate("/teamlead-dashboard");
+      } else {
+        navigate("/volunteer-dashboard");
+      }
+    } catch (err: any) {
+      alert(err?.response?.data?.message || "Invalid or expired OTP");
+    } finally {
+      setLoading(false);
     }
-
-  } catch {
-    alert("Invalid or expired OTP");
-  } finally {
-    setLoading(false);
-  }
-};
-
+  };
 
   return (
     <>
-      {/* SAME BUTTON */}
       <button
         className="w-full text-white py-3 rounded-lg font-semibold"
         style={{ backgroundColor: themeColor }}
@@ -104,7 +90,7 @@ const LoginDialog = ({
             style={{ backgroundColor }}
           >
             <h2 className="text-xl font-bold mb-4" style={{ color: themeColor }}>
-              {role} Login
+              Login
             </h2>
 
             <input
