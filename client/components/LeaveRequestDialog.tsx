@@ -1,4 +1,5 @@
 import { useState } from "react";
+import api from "@/lib/api"; // ✅ ADDED (LOGIC ONLY)
 
 interface LeaveRequestDialogProps {
   open: boolean;
@@ -15,30 +16,43 @@ const LeaveRequestDialog: React.FC<LeaveRequestDialogProps> = ({
 
   if (!open) return null;
 
-  const submitLeave = () => {
+  /* ======================
+     ✅ LOGIC ONLY UPDATED
+  ====================== */
+  const submitLeave = async () => {
     if (!fromDate || !toDate || !reason) {
       alert("All fields are required");
       return;
     }
 
-    const payload = {
-      from_date: fromDate,
-      to_date: toDate,
-      reason,
-      status: "PENDING",
-      created_at: new Date().toISOString(),
-    };
+    try {
+      await api.post("/leaves", {
+        fromDate,
+        toDate,
+        reason,
+      });
 
-    console.log("Leave Request:", payload);
-    onClose();
+      alert("Leave request submitted successfully");
+      onClose();
+
+      // optional reset
+      setFromDate("");
+      setToDate("");
+      setReason("");
+    } catch (error: any) {
+      console.error("APPLY LEAVE ERROR:", error);
+      alert(error.response?.data?.message || "Failed to apply leave");
+    }
   };
 
+  /* ======================
+     ⛔ UI BELOW — UNCHANGED
+  ====================== */
   return (
     <div style={styles.overlay}>
       <div style={styles.dialog}>
         <h2 style={styles.heading}>Request Leave</h2>
 
-        {/* From Date */}
         <label style={styles.label}>From Date</label>
         <input
           type="date"
@@ -47,7 +61,6 @@ const LeaveRequestDialog: React.FC<LeaveRequestDialogProps> = ({
           style={styles.input}
         />
 
-        {/* To Date */}
         <label style={styles.label}>To Date</label>
         <input
           type="date"
@@ -56,7 +69,6 @@ const LeaveRequestDialog: React.FC<LeaveRequestDialogProps> = ({
           style={styles.input}
         />
 
-        {/* Reason */}
         <label style={styles.label}>Reason</label>
         <textarea
           value={reason}
@@ -65,11 +77,9 @@ const LeaveRequestDialog: React.FC<LeaveRequestDialogProps> = ({
           placeholder="Briefly explain your reason..."
         />
 
-        {/* Status */}
         <label style={styles.label}>Status</label>
         <input value="PENDING" disabled style={styles.status} />
 
-        {/* Actions */}
         <div style={styles.actions}>
           <button style={styles.secondaryBtn} onClick={onClose}>
             Cancel
@@ -85,6 +95,7 @@ const LeaveRequestDialog: React.FC<LeaveRequestDialogProps> = ({
 
 export default LeaveRequestDialog;
 
+/* ⛔ STYLES UNTOUCHED */
 const styles: { [key: string]: React.CSSProperties } = {
   overlay: {
     position: "fixed",
@@ -96,7 +107,7 @@ const styles: { [key: string]: React.CSSProperties } = {
     zIndex: 1000,
   },
   dialog: {
-    width: "520px", // ⬅ increased size
+    width: "520px",
     backgroundColor: "#F1F8E9",
     borderRadius: "14px",
     padding: "24px",

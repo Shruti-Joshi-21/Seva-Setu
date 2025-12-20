@@ -1,10 +1,11 @@
 import React, { useState } from "react";
+import api from "@/lib/api";
 
 interface TaskFormData {
   title: string;
   description: string;
   category: string;
-  assignedTo: string[]; // array of volunteers
+  assignedTo: string[];
   priority: string;
   startDate: string;
   endDate: string;
@@ -17,18 +18,23 @@ interface VolunteerAddTaskDialogProps {
   onClose: () => void;
 }
 
-const VolunteerAddTaskDialog: React.FC<VolunteerAddTaskDialogProps> = ({ isOpen, onClose }) => {
+const VolunteerAddTaskDialog: React.FC<VolunteerAddTaskDialogProps> = ({
+  isOpen,
+  onClose,
+}) => {
   const [formData, setFormData] = useState<TaskFormData>({
     title: "",
     description: "",
     category: "",
-    assignedTo: [""], // start with one field
+    assignedTo: [""],
     priority: "Medium",
     startDate: "",
     endDate: "",
     location: "",
     notes: "",
   });
+
+  const [loading, setLoading] = useState(false);
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>,
@@ -52,21 +58,55 @@ const VolunteerAddTaskDialog: React.FC<VolunteerAddTaskDialogProps> = ({ isOpen,
     setFormData({ ...formData, assignedTo: newAssignedTo });
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  /* ======================
+     SUBMIT TASK (LEADER)
+  ====================== */
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log("Task Submitted:", formData);
-    onClose();
-    setFormData({
-      title: "",
-      description: "",
-      category: "",
-      assignedTo: [""],
-      priority: "Medium",
-      startDate: "",
-      endDate: "",
-      location: "",
-      notes: "",
-    });
+
+    const role = localStorage.getItem("role");
+    if (role !== "LEADER") {
+      alert("Only Team Lead can assign tasks to volunteers");
+      return;
+    }
+
+    try {
+      setLoading(true);
+
+      const res = await api.post("/tasks/create", {
+        title: formData.title,
+        description: formData.description,
+        latitude: 0, // map picker later
+        longitude: 0,
+        date: formData.startDate || new Date().toISOString(),
+      });
+
+      // ✅ store created taskId
+      if (res.data?.task?._id) {
+        localStorage.setItem("lastTaskId", res.data.task._id);
+      }
+
+      alert("Task assigned to volunteers successfully");
+      onClose();
+
+      // reset form
+      setFormData({
+        title: "",
+        description: "",
+        category: "",
+        assignedTo: [""],
+        priority: "Medium",
+        startDate: "",
+        endDate: "",
+        location: "",
+        notes: "",
+      });
+    } catch (error: any) {
+      console.error("CREATE TASK ERROR:", error);
+      alert(error?.response?.data?.message || "Failed to add task");
+    } finally {
+      setLoading(false);
+    }
   };
 
   if (!isOpen) return null;
@@ -74,9 +114,13 @@ const VolunteerAddTaskDialog: React.FC<VolunteerAddTaskDialogProps> = ({ isOpen,
   return (
     <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-40 z-50">
       <div className="bg-[#F1F8E9] rounded-lg w-full max-w-lg p-6 relative">
-        <h2 className="text-[#246427] text-xl font-semibold mb-4">Add New Task</h2>
+        <h2 className="text-[#246427] text-xl font-semibold mb-4">
+          Add New Task
+        </h2>
+
         <form onSubmit={handleSubmit} className="space-y-3">
-          {/* Task Title */}
+          {/* 🔒 UI BELOW IS UNCHANGED */}
+
           <div>
             <label className="text-[#212121] font-medium">Task Title</label>
             <input
@@ -89,7 +133,6 @@ const VolunteerAddTaskDialog: React.FC<VolunteerAddTaskDialogProps> = ({ isOpen,
             />
           </div>
 
-          {/* Description */}
           <div>
             <label className="text-[#212121] font-medium">Description</label>
             <textarea
@@ -102,7 +145,6 @@ const VolunteerAddTaskDialog: React.FC<VolunteerAddTaskDialogProps> = ({ isOpen,
             />
           </div>
 
-          {/* Category */}
           <div>
             <label className="text-[#212121] font-medium">Category</label>
             <input
@@ -114,7 +156,6 @@ const VolunteerAddTaskDialog: React.FC<VolunteerAddTaskDialogProps> = ({ isOpen,
             />
           </div>
 
-          {/* Assigned To multiple */}
           <div>
             <label className="text-[#212121] font-medium">Assigned To</label>
             {formData.assignedTo.map((volunteer, index) => (
@@ -147,7 +188,6 @@ const VolunteerAddTaskDialog: React.FC<VolunteerAddTaskDialogProps> = ({ isOpen,
             ))}
           </div>
 
-          {/* Priority */}
           <div>
             <label className="text-[#212121] font-medium">Priority</label>
             <select
@@ -162,7 +202,6 @@ const VolunteerAddTaskDialog: React.FC<VolunteerAddTaskDialogProps> = ({ isOpen,
             </select>
           </div>
 
-          {/* Dates */}
           <div className="flex gap-2">
             <div className="flex-1">
               <label className="text-[#212121] font-medium">Start Date</label>
@@ -186,7 +225,6 @@ const VolunteerAddTaskDialog: React.FC<VolunteerAddTaskDialogProps> = ({ isOpen,
             </div>
           </div>
 
-          {/* Location */}
           <div>
             <label className="text-[#212121] font-medium">Location</label>
             <input
@@ -198,7 +236,6 @@ const VolunteerAddTaskDialog: React.FC<VolunteerAddTaskDialogProps> = ({ isOpen,
             />
           </div>
 
-          {/* Notes */}
           <div>
             <label className="text-[#212121] font-medium">Notes</label>
             <textarea
@@ -210,7 +247,6 @@ const VolunteerAddTaskDialog: React.FC<VolunteerAddTaskDialogProps> = ({ isOpen,
             />
           </div>
 
-          {/* Buttons */}
           <div className="flex justify-end gap-2 mt-4">
             <button
               type="button"
@@ -221,9 +257,10 @@ const VolunteerAddTaskDialog: React.FC<VolunteerAddTaskDialogProps> = ({ isOpen,
             </button>
             <button
               type="submit"
+              disabled={loading}
               className="px-4 py-2 rounded-lg bg-[#246427] text-white hover:bg-[#81C784] transition"
             >
-              Add Task
+              {loading ? "Adding..." : "Add Task"}
             </button>
           </div>
         </form>

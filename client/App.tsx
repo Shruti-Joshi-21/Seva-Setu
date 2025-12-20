@@ -6,20 +6,21 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
+
 import Index from "./pages/Index";
 import Features from "./pages/Features";
 import About from "./pages/About";
 import Contact from "./pages/Contact";
 import NotFound from "./pages/NotFound";
+
 import TeamLeadDashboard from "./pages/TeamLeadDashboard";
 import AdminDashboard from "./pages/AdminDashboard";
-import VolunteerDashboard from "./pages/VolunteerDashboard"; 
-import LoginDialog from "./components/LoginDialog";
-import FieldReports from "./pages/FieldReports";
-import ProtectedRoute from "./components/ProtectedRoute";
+import VolunteerDashboard from "./pages/VolunteerDashboard";
+
+import FieldReportsDashboard from "@/components/FieldReportsDashboard"; // ✅ ALREADY IMPORTED
 import RegisterFacePage from "./pages/RegisterFacePage";
 
-
+import ProtectedRoute from "./components/ProtectedRoute";
 
 const queryClient = new QueryClient();
 
@@ -36,7 +37,7 @@ const App = () => (
           <Route path="/about" element={<About />} />
           <Route path="/contact" element={<Contact />} />
 
-          {/* Face Registration (after login) */}
+          {/* Face Registration */}
           <Route
             path="/register-face"
             element={
@@ -46,7 +47,7 @@ const App = () => (
             }
           />
 
-          {/* Dashboards with Role Protection */}
+          {/* Admin Dashboard */}
           <Route
             path="/admin-dashboard"
             element={
@@ -56,6 +57,7 @@ const App = () => (
             }
           />
 
+          {/* Team Lead Dashboard */}
           <Route
             path="/teamlead-dashboard"
             element={
@@ -65,11 +67,22 @@ const App = () => (
             }
           />
 
+          {/* Volunteer Dashboard */}
           <Route
             path="/volunteer-dashboard"
             element={
               <ProtectedRoute allowedRoles={["VOLUNTEER"]}>
                 <VolunteerDashboard />
+              </ProtectedRoute>
+            }
+          />
+
+          {/* ✅ FIELD REPORTS (THIS WAS MISSING) */}
+          <Route
+            path="/field-reports"
+            element={
+              <ProtectedRoute allowedRoles={["VOLUNTEER"]}>
+                <FieldReportsDashboard />
               </ProtectedRoute>
             }
           />

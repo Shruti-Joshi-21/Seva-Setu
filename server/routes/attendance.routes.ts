@@ -7,7 +7,7 @@ const router = express.Router();
 const upload = multer();
 
 router.post(
-  "/check-in",
+  "/mark",        // 👈 CHANGE HERE
   protect,
   upload.single("image"),
   checkInAttendance

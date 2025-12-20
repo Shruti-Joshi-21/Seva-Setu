@@ -19,7 +19,9 @@ const SignInDialog: React.FC<SignInDialogProps> = ({ open, onClose }) => {
 
   const navigate = useNavigate();
 
-  /* CAMERA */
+  /* ======================
+     CAMERA START / STOP
+  ====================== */
   useEffect(() => {
     if (!open) return;
 
@@ -39,12 +41,14 @@ const SignInDialog: React.FC<SignInDialogProps> = ({ open, onClose }) => {
     };
   }, [open]);
 
-  /* CAPTURE FACE */
+  /* ======================
+     CAPTURE FACE
+  ====================== */
   const captureFace = () => {
     if (!videoRef.current || !canvasRef.current) return;
 
-    const canvas = canvasRef.current;
     const video = videoRef.current;
+    const canvas = canvasRef.current;
 
     canvas.width = video.videoWidth;
     canvas.height = video.videoHeight;
@@ -93,6 +97,9 @@ const SignInDialog: React.FC<SignInDialogProps> = ({ open, onClose }) => {
 
   if (!open) return null;
 
+  /* ======================
+     UI (UNCHANGED)
+  ====================== */
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
       <div className="w-full max-w-lg rounded-2xl p-6 shadow-xl bg-[#F1F8E9]">
@@ -130,7 +137,12 @@ const SignInDialog: React.FC<SignInDialogProps> = ({ open, onClose }) => {
 
         <div className="mt-5">
           <div className="relative rounded-lg overflow-hidden border">
-            <video ref={videoRef} autoPlay playsInline className="w-full h-56 object-cover" />
+            <video
+              ref={videoRef}
+              autoPlay
+              playsInline
+              className="w-full h-56 object-cover"
+            />
             <canvas ref={canvasRef} className="hidden" />
           </div>
 
